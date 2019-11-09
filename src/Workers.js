@@ -38,7 +38,7 @@ const Workers = props => {
   useEffect(() => {
     (async () => {
       if (accessToken) {
-        let repos = await fetch(`https://github.penalosa.dev/repos/1`, {
+        let repos = await fetch(`https://github.freshair.org.uk/repos/1`, {
           headers: { "X-Auth-Token": accessToken }
         }).then(r => r.json());
         console.log(repos);

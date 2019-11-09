@@ -57,7 +57,7 @@ const Repository = ({
   const [accessToken, setAccessToken] = useLocalStorage("access_token", null);
   const addSecret = async () => {
     let s = await fetch(
-      `https://github.penalosa.dev/repos/${owner}/${repo_name}/secrets`,
+      `https://github.freshair.org.uk/repos/${owner}/${repo_name}/secrets`,
       {
         method: "POST",
         body: JSON.stringify({ key, val }),
@@ -75,7 +75,7 @@ const Repository = ({
     (async () => {
       if (accessToken) {
         let repo = await fetch(
-          `https://github.penalosa.dev/repos/${owner}/${repo_name}`,
+          `https://github.freshair.org.uk/repos/${owner}/${repo_name}`,
           {
             headers: { "X-Auth-Token": accessToken }
           }

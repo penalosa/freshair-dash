@@ -37,7 +37,7 @@ const Code = ({
   const [accessToken, setAccessToken] = useLocalStorage("access_token", null);
   useEffect(() => {
     (async () => {
-      let at = await fetch(`https://github.penalosa.dev/token/${code}`).then(
+      let at = await fetch(`https://github.freshair.org.uk/token/${code}`).then(
         r => r.json()
       );
       if (at.access_token) {

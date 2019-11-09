@@ -41,7 +41,7 @@ const Repos = props => {
   const createRepo = async () => {
     setIsCreatingRepo(true);
     let repo = await fetch(
-      `https://github.penalosa.dev/workers/new/${newRepoName}`,
+      `https://github.freshair.org.uk/workers/new/${newRepoName}`,
       {
         method: "POST",
         headers: { "X-Auth-Token": accessToken }
@@ -53,7 +53,7 @@ const Repos = props => {
   useEffect(() => {
     (async () => {
       if (accessToken) {
-        let repos = await fetch(`https://github.penalosa.dev/repos/active`, {
+        let repos = await fetch(`https://github.freshair.org.uk/repos/active`, {
           headers: { "X-Auth-Token": accessToken }
         }).then(r => r.json());
         console.log(repos);

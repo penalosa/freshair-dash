@@ -1,6 +1,6 @@
 module.exports = {
-  domain: "penalosa.dev",
-  namespaces: ["secrets", "repos", "deploys"],
+  domain: "freshair.org.uk",
+  namespaces: ["secrets", "repos"],
   handlers: ({ json, html, text }, { secrets, repos }) => ({
     get: {
       "/oauth": async (req, _, log) => {
@@ -8,7 +8,7 @@ module.exports = {
         log.info(`Authorized GH Oauth, redirecting to dashboard`);
         let htm = `
       <script>
-      window.location = "https://dash.penalosa.dev/code/${code}";
+      window.location = "https://dash.freshair.org.uk/code/${code}";
       </script>
       `;
         return html(htm);

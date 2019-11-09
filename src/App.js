@@ -44,7 +44,7 @@ const App = props => {
   const [accessToken, setAccessToken] = useLocalStorage("access_token", null);
   const authorizeGH = () => {
     setLoadingSignIn(true);
-    fetch(`https://github.penalosa.dev/start`)
+    fetch(`https://github.freshair.org.uk/start`)
       .then(r => r.json())
       .then(u => {
         window.location = u.url;
@@ -53,7 +53,7 @@ const App = props => {
   useEffect(() => {
     (async () => {
       if (accessToken) {
-        let profile = await fetch(`https://github.penalosa.dev/profile`, {
+        let profile = await fetch(`https://github.freshair.org.uk/profile`, {
           headers: { "X-Auth-Token": accessToken }
         }).then(r => r.json());
         console.log(profile);
