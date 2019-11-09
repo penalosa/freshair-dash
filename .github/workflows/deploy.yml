@@ -22,5 +22,5 @@ jobs:
           api_key: ${{ secrets.api_key }}
           account_id: ${{ secrets.account_id }}
           email: ${{ secrets.email }}
-          domain: dash.freshair.dev
+          domain: dash.freshair.org.uk
           bucket: ./build
