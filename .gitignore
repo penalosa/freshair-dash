@@ -1,0 +1,4 @@
+node_modules
+.workers
+build
+workers-site
