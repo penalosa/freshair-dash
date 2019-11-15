@@ -1,18 +1,36 @@
 module.exports = {
   domain: "freshair.org.uk",
-  namespaces: ["secrets", "repos"],
-  handlers: ({ json, html, text }, { secrets, repos }) => ({
+  namespaces: ["secrets", "users", "repos"],
+  dependencies: {
+    jsonwebtoken: "^8.5.1"
+  },
+  handlers: (
+    { json, html, text },
+    { secrets, users, repos },
+    { jsonwebtoken: jwt }
+  ) => ({
+    post: {
+      "/auth/:code": async (req, { code }, log) => {
+        let accessToken = await fetch(
+          "https://github.com/login/oauth/access_token",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json"
+            },
+            method: "POST",
+            body: JSON.stringify({
+              client_id: await secrets.get("GH_CLIENT_ID"),
+              client_secret: await secrets.get("GH_CLIENT_SECRET"),
+              code
+            })
+          }
+        ).then(r => r.json());
+        return json(at);
+      }
+    },
     get: {
-      "/oauth": async (req, _, log) => {
-        let code = new URL(req.url).searchParams.get("code");
-        log.info(`Authorized GH Oauth, redirecting to dashboard`);
-        let htm = `
-      <script>
-      window.location = "https://dash.freshair.org.uk/code/${code}";
-      </script>
-      `;
-        return html(htm);
-      },
+      // Depreciated
       "/start": async (req, _, log) => {
         let id = await secrets.get("GH_CLIENT_ID");
         log.info("Authorization url requested");
@@ -20,22 +38,18 @@ module.exports = {
           url: `https://github.com/login/oauth/authorize?scope=repo%20user%20workflow&client_id=${id}`
         });
       },
-      "/token/:code": async (req, { code }, log) => {
-        let at = await fetch("https://github.com/login/oauth/access_token", {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json"
-          },
-          method: "POST",
-          body: JSON.stringify({
-            client_id: await secrets.get("GH_CLIENT_ID"),
-            client_secret: await secrets.get("GH_CLIENT_SECRET"),
-
-            code
-          })
-        }).then(r => r.json());
-        return json(at);
+      // Github Hook
+      "/oauth": async (req, _) => {
+        let code = new URL(req.url).searchParams.get("code");
+        log.info(`Authorized GH Oauth, redirecting to dashboard`);
+        let htm = `
+      <code>
+      ${code}"
+      </code>
+      `;
+        return html(htm);
       },
+
       "/profile": async (req, { code }, log) => {
         let token = req.headers.get("X-Auth-Token");
         let profile = await fetch("https://api.github.com/user", {
@@ -110,44 +124,44 @@ module.exports = {
 
         return json({ repos, next: `/repos/${n + 1}` });
       }
-    },
-    post: {
-      "/repos/:owner/:name/secrets": async (req, { owner, name }, log) => {
-        let body = await req.json();
-        await secrets.put(`${owner}/${name}:${body.key}`, body.val);
-        return json(body);
-      },
-      "/workers/new/:name": async (req, { name }, log) => {
-        let token = req.headers.get("X-Auth-Token");
-        let profile = await fetch("https://api.github.com/user", {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            "User-Agent": "Cloudflare Worker",
-            Authorization: `token ${token}`
-          }
-        }).then(r => r.json());
-        const repo = await fetch(
-          `https://api.github.com/repos/penalosa/simple-worker-template/generate`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/vnd.github.baptiste-preview+json",
-              "User-Agent": "Cloudflare Worker",
-              Authorization: `token ${token}`
-            },
-            body: JSON.stringify({
-              owner: profile.login,
-              name: name,
-              description: "Cloudflare Workers",
-              private: false
-            })
-          }
-        ).then(r => r.json());
-        await repos.put(`${profile.login}/${name}`, JSON.stringify(repo));
-        return json(repo);
-      }
     }
+    // post: {
+    //   "/repos/:owner/:name/secrets": async (req, { owner, name }, log) => {
+    //     let body = await req.json();
+    //     await secrets.put(`${owner}/${name}:${body.key}`, body.val);
+    //     return json(body);
+    //   },
+    //   "/workers/new/:name": async (req, { name }, log) => {
+    //     let token = req.headers.get("X-Auth-Token");
+    //     let profile = await fetch("https://api.github.com/user", {
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //         Accept: "application/json",
+    //         "User-Agent": "Cloudflare Worker",
+    //         Authorization: `token ${token}`
+    //       }
+    //     }).then(r => r.json());
+    //     const repo = await fetch(
+    //       `https://api.github.com/repos/penalosa/simple-worker-template/generate`,
+    //       {
+    //         method: "POST",
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //           Accept: "application/vnd.github.baptiste-preview+json",
+    //           "User-Agent": "Cloudflare Worker",
+    //           Authorization: `token ${token}`
+    //         },
+    //         body: JSON.stringify({
+    //           owner: profile.login,
+    //           name: name,
+    //           description: "Cloudflare Workers",
+    //           private: false
+    //         })
+    //       }
+    //     ).then(r => r.json());
+    //     await repos.put(`${profile.login}/${name}`, JSON.stringify(repo));
+    //     return json(repo);
+    //   }
+    // }
   })
 };
